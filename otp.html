@@ -95,9 +95,41 @@
             color: #666;
             margin-top: 1rem;
         }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+        }
+        @media (max-width: 480px) {
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Login
+    </a>
+
     <div class="container">
         <div class="header">
             <i class="fas fa-shield-alt"></i>
@@ -193,6 +225,15 @@
                 }, 1000);
             }
         }
+
+        // Check if email parameter is present
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userEmail = urlParams.get('email');
+            if (!userEmail) {
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 </html> 

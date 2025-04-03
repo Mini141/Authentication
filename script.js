@@ -34,8 +34,9 @@ function toggleForm(formType) {
 
 // Generate QR Code
 function generateQRCode(email) {
-    const currentUrl = window.location.href;
-    const otpUrl = currentUrl.replace('index.html', 'otp.html') + `?email=${encodeURIComponent(email)}`;
+    // Get the base URL (works for both local and deployed environments)
+    const baseUrl = window.location.origin;
+    const otpUrl = `${baseUrl}/otp.html?email=${encodeURIComponent(email)}`;
     const qrcode = new QRCode(document.getElementById("qrcode"), {
         text: otpUrl,
         width: 200,
@@ -107,10 +108,14 @@ function showOTPSection() {
 document.getElementById('otpForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const enteredOTP = document.getElementById('otpInput').value;
-    // In a real application, verify OTP with the one sent to email
-    if (enteredOTP.length === 6) {
-        alert('Authentication Successful!');
-        // Redirect to dashboard or home page
+    const storedOTP = localStorage.getItem('currentOTP');
+    
+    if (enteredOTP === storedOTP) {
+        // Clear the stored OTP
+        localStorage.removeItem('currentOTP');
+        localStorage.removeItem('otpTimestamp');
+        // Redirect to success page
+        window.location.href = 'success.html';
     } else {
         alert('Invalid OTP. Please try again.');
     }
