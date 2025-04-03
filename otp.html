@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send OTP</title>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        .header {
+            margin-bottom: 2rem;
+        }
+        .header i {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+        .header h1 {
+            color: #333;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        .header p {
+            color: #666;
+            margin: 0.5rem 0;
+        }
+        .send-otp-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .send-otp-btn:hover {
+            background-color: #45a049;
+        }
+        .send-otp-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .status-message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: left;
+            border-radius: 0 5px 5px 0;
+        }
+        .info-box h3 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .info-box p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .timer {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <i class="fas fa-shield-alt"></i>
+            <h1>OTP Verification</h1>
+            <p>Secure your account with One-Time Password</p>
+        </div>
+
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle"></i> How it works:</h3>
+            <p>1. Click the "Send OTP" button below</p>
+            <p>2. You'll receive a 6-digit code on your registered email</p>
+            <p>3. Enter this code to complete verification</p>
+        </div>
+
+        <button class="send-otp-btn" onclick="sendOTP()">Send OTP</button>
+        <div id="timer" class="timer"></div>
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <script>
+        // Initialize EmailJS with your public key
+        emailjs.init("IMwIKjhh67B1_o9I9");
+
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000);
+        }
+
+        function updateTimer(seconds) {
+            const timerElement = document.getElementById('timer');
+            if (seconds > 0) {
+                timerElement.textContent = `Resend available in ${seconds} seconds`;
+            } else {
+                timerElement.textContent = '';
+            }
+        }
+
+        async function sendOTP() {
+            const button = document.querySelector('.send-otp-btn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Disable button while sending
+            button.disabled = true;
+            statusMessage.textContent = 'Sending OTP...';
+            statusMessage.className = 'status-message';
+
+            try {
+                // Get email from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const userEmail = urlParams.get('email');
+
+                if (!userEmail) {
+                    throw new Error('No email address found');
+                }
+
+                const otp = generateOTP();
+
+                // Send email using EmailJS
+                await emailjs.send(
+                    "service_nk4zixs",
+                    "template_vh13f8d",
+                    {
+                        to_email: userEmail,
+                        otp: otp,
+                    }
+                );
+
+                statusMessage.textContent = 'OTP sent successfully!';
+                statusMessage.className = 'status-message success';
+                
+                // Store OTP in localStorage for verification
+                localStorage.setItem('currentOTP', otp);
+                localStorage.setItem('otpTimestamp', Date.now());
+
+            } catch (error) {
+                statusMessage.textContent = 'Failed to send OTP. Please try again.';
+                statusMessage.className = 'status-message error';
+                console.error('Error sending OTP:', error);
+            } finally {
+                // Start countdown timer
+                let secondsLeft = 60;
+                updateTimer(secondsLeft);
+                
+                const timer = setInterval(() => {
+                    secondsLeft--;
+                    updateTimer(secondsLeft);
+                    
+                    if (secondsLeft <= 0) {
+                        clearInterval(timer);
+                        button.disabled = false;
+                        statusMessage.textContent = '';
+                        statusMessage.className = 'status-message';
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html> 
