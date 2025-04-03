@@ -151,7 +151,9 @@
 
     <script>
         // Initialize EmailJS with your public key
-        emailjs.init("IMwIKjhh67B1_o9I9");
+        (function() {
+            emailjs.init("IMwIKjhh67B1_o9I9");
+        })();
 
         function generateOTP() {
             return Math.floor(100000 + Math.random() * 900000);
@@ -185,9 +187,10 @@
                 }
 
                 const otp = generateOTP();
+                console.log('Generated OTP:', otp); // For debugging
 
                 // Send email using EmailJS
-                await emailjs.send(
+                const response = await emailjs.send(
                     "service_nk4zixs",
                     "template_vh13f8d",
                     {
@@ -196,17 +199,23 @@
                     }
                 );
 
-                statusMessage.textContent = 'OTP sent successfully!';
-                statusMessage.className = 'status-message success';
-                
-                // Store OTP in localStorage for verification
-                localStorage.setItem('currentOTP', otp);
-                localStorage.setItem('otpTimestamp', Date.now());
+                console.log('EmailJS Response:', response); // For debugging
+
+                if (response.status === 200) {
+                    statusMessage.textContent = 'OTP sent successfully!';
+                    statusMessage.className = 'status-message success';
+                    
+                    // Store OTP in localStorage for verification
+                    localStorage.setItem('currentOTP', otp);
+                    localStorage.setItem('otpTimestamp', Date.now());
+                } else {
+                    throw new Error('Failed to send OTP');
+                }
 
             } catch (error) {
+                console.error('Error details:', error); // For debugging
                 statusMessage.textContent = 'Failed to send OTP. Please try again.';
                 statusMessage.className = 'status-message error';
-                console.error('Error sending OTP:', error);
             } finally {
                 // Start countdown timer
                 let secondsLeft = 60;
@@ -233,6 +242,7 @@
             if (!userEmail) {
                 window.location.href = 'index.html';
             }
+            console.log('Current email:', userEmail); // For debugging
         });
     </script>
 </body>
