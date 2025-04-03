@@ -187,20 +187,23 @@
                 }
 
                 const otp = generateOTP();
-                console.log('Generated OTP:', otp); // For debugging
-                console.log('Sending to email:', userEmail); // For debugging
+                console.log('Generated OTP:', otp);
+                console.log('Sending to email:', userEmail);
 
                 // Send email using EmailJS
+                const templateParams = {
+                    to_email: userEmail,
+                    otp: otp,
+                    to_name: userEmail.split('@')[0]
+                };
+
                 const response = await emailjs.send(
                     "service_nk4zixs",
                     "template_vh13f8d",
-                    {
-                        to_email: userEmail,
-                        otp: otp
-                    }
+                    templateParams
                 );
 
-                console.log('EmailJS Response:', response); // For debugging
+                console.log('EmailJS Response:', response);
 
                 if (response.status === 200) {
                     statusMessage.textContent = 'OTP sent successfully!';
@@ -214,7 +217,7 @@
                 }
 
             } catch (error) {
-                console.error('Error details:', error); // For debugging
+                console.error('Error details:', error);
                 statusMessage.textContent = 'Failed to send OTP. Please try again.';
                 statusMessage.className = 'status-message error';
             } finally {

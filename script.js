@@ -92,18 +92,24 @@ function showQRCode(email) {
     localStorage.setItem('userEmail', email);
     
     // Generate QR code with email parameter
-    const currentUrl = window.location.href;
-    const otpUrl = currentUrl.replace('index.html', 'otp.html') + `?email=${encodeURIComponent(email)}`;
+    const baseUrl = window.location.origin;
+    const otpUrl = `${baseUrl}/otp.html?email=${encodeURIComponent(email)}`;
+    
+    // Create QR code
     const qrcode = new QRCode(document.getElementById("qrcode"), {
         text: otpUrl,
         width: 200,
-        height: 200
+        height: 200,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
     });
+    
+    console.log('Generated QR URL:', otpUrl); // For debugging
     
     // Simulate QR code scan (in real app, this would be triggered by actual scan)
     setTimeout(() => {
         const otp = generateOTP();
-        // In a real application, send this OTP to user's email using Firebase Cloud Functions
         console.log('OTP:', otp);
         showOTPSection();
     }, 30000); // Simulate 30 second delay for QR scan
