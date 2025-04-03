@@ -188,6 +188,7 @@
 
                 const otp = generateOTP();
                 console.log('Generated OTP:', otp); // For debugging
+                console.log('Sending to email:', userEmail); // For debugging
 
                 // Send email using EmailJS
                 const response = await emailjs.send(
@@ -195,7 +196,7 @@
                     "template_vh13f8d",
                     {
                         to_email: userEmail,
-                        otp: otp,
+                        otp: otp
                     }
                 );
 
@@ -240,9 +241,11 @@
             const urlParams = new URLSearchParams(window.location.search);
             const userEmail = urlParams.get('email');
             if (!userEmail) {
+                console.log('No email found in URL, redirecting to home...');
                 window.location.href = 'index.html';
+            } else {
+                console.log('Email found:', userEmail);
             }
-            console.log('Current email:', userEmail); // For debugging
         });
     </script>
 </body>

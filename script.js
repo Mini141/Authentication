@@ -87,7 +87,18 @@ function showQRCode(email) {
     signupForm.classList.add('hidden');
     qrSection.classList.remove('hidden');
     document.getElementById('qrcode').innerHTML = '';
-    generateQRCode(email);
+    
+    // Store email in localStorage for OTP verification
+    localStorage.setItem('userEmail', email);
+    
+    // Generate QR code with email parameter
+    const currentUrl = window.location.href;
+    const otpUrl = currentUrl.replace('index.html', 'otp.html') + `?email=${encodeURIComponent(email)}`;
+    const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: otpUrl,
+        width: 200,
+        height: 200
+    });
     
     // Simulate QR code scan (in real app, this would be triggered by actual scan)
     setTimeout(() => {
