@@ -150,13 +150,19 @@
     </div>
 
     <script>
-        // Initialize EmailJS with your public key
+        // Initialize EmailJS
         (function() {
-            emailjs.init("IMwIKjhh67B1_o9I9");
+            emailjs.init({
+                publicKey: "IMwIKjhh67B1_o9I9",
+                blockHeadless: false,
+                limitRate: {
+                    throttle: 5000
+                }
+            });
         })();
 
         function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000);
+            return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
         function updateTimer(seconds) {
@@ -187,37 +193,37 @@
                 }
 
                 const otp = generateOTP();
-                console.log('Generated OTP:', otp);
-                console.log('Sending to email:', userEmail);
+                console.log('Sending OTP to:', userEmail);
 
-                // Send email using EmailJS
+                // Prepare template parameters
                 const templateParams = {
                     to_email: userEmail,
                     otp: otp,
-                    to_name: userEmail.split('@')[0]
+                    user_email: userEmail,
+                    message: `Your OTP is: ${otp}`
                 };
 
+                // Send email using EmailJS
                 const response = await emailjs.send(
                     "service_nk4zixs",
                     "template_vh13f8d",
                     templateParams
+                ).then(
+                    function(response) {
+                        console.log("SUCCESS!", response.status, response.text);
+                        statusMessage.textContent = 'OTP sent successfully!';
+                        statusMessage.className = 'status-message success';
+                        localStorage.setItem('currentOTP', otp);
+                        localStorage.setItem('otpTimestamp', Date.now());
+                    },
+                    function(error) {
+                        console.log("FAILED...", error);
+                        throw error;
+                    }
                 );
 
-                console.log('EmailJS Response:', response);
-
-                if (response.status === 200) {
-                    statusMessage.textContent = 'OTP sent successfully!';
-                    statusMessage.className = 'status-message success';
-                    
-                    // Store OTP in localStorage for verification
-                    localStorage.setItem('currentOTP', otp);
-                    localStorage.setItem('otpTimestamp', Date.now());
-                } else {
-                    throw new Error('Failed to send OTP');
-                }
-
             } catch (error) {
-                console.error('Error details:', error);
+                console.error('Error sending OTP:', error);
                 statusMessage.textContent = 'Failed to send OTP. Please try again.';
                 statusMessage.className = 'status-message error';
             } finally {
@@ -244,7 +250,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const userEmail = urlParams.get('email');
             if (!userEmail) {
-                console.log('No email found in URL, redirecting to home...');
+                console.log('No email found, redirecting to login...');
                 window.location.href = 'index.html';
             } else {
                 console.log('Email found:', userEmail);
