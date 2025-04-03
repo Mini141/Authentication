@@ -14,18 +14,20 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-color: #f5f5f5;
+            padding: 20px;
         }
         .container {
             text-align: center;
             padding: 2rem;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             width: 90%;
+            max-width: 400px;
+            position: relative;
         }
         .header {
             margin-bottom: 2rem;
@@ -44,6 +46,21 @@
             color: #666;
             margin: 0.5rem 0;
         }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: left;
+        }
+        .info-box h3 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .info-box p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
         .send-otp-btn {
             background-color: #4CAF50;
             color: white;
@@ -52,16 +69,15 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
             width: 100%;
             margin-top: 1rem;
-        }
-        .send-otp-btn:hover {
-            background-color: #45a049;
         }
         .send-otp-btn:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
+        }
+        .send-otp-btn:hover:not(:disabled) {
+            background-color: #45a049;
         }
         .status-message {
             margin-top: 15px;
@@ -73,25 +89,7 @@
         .error {
             color: #f44336;
         }
-        .info-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #4CAF50;
-            padding: 1rem;
-            margin: 1rem 0;
-            text-align: left;
-            border-radius: 0 5px 5px 0;
-        }
-        .info-box h3 {
-            margin: 0 0 0.5rem 0;
-            color: #333;
-        }
-        .info-box p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
         .timer {
-            font-size: 1.2rem;
             color: #666;
             margin-top: 1rem;
         }
@@ -102,17 +100,11 @@
             background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
-            border: none;
             border-radius: 5px;
-            cursor: pointer;
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        .back-btn:hover {
-            background-color: #45a049;
         }
         @media (max-width: 480px) {
             .back-btn {
@@ -150,15 +142,8 @@
     </div>
 
     <script>
-        // Initialize EmailJS
         (function() {
-            emailjs.init({
-                publicKey: "IMwIKjhh67B1_o9I9",
-                blockHeadless: false,
-                limitRate: {
-                    throttle: 5000
-                }
-            });
+            emailjs.init("IMwIKjhh67B1_o9I9");
         })();
 
         function generateOTP() {
@@ -174,86 +159,67 @@
             }
         }
 
-        async function sendOTP() {
+        function sendOTP() {
             const button = document.querySelector('.send-otp-btn');
             const statusMessage = document.getElementById('statusMessage');
             
-            // Disable button while sending
             button.disabled = true;
             statusMessage.textContent = 'Sending OTP...';
             statusMessage.className = 'status-message';
 
-            try {
-                // Get email from URL parameters
-                const urlParams = new URLSearchParams(window.location.search);
-                const userEmail = urlParams.get('email');
+            const urlParams = new URLSearchParams(window.location.search);
+            const userEmail = urlParams.get('email');
 
-                if (!userEmail) {
-                    throw new Error('No email address found');
-                }
-
-                const otp = generateOTP();
-                console.log('Sending OTP to:', userEmail);
-
-                // Prepare template parameters
-                const templateParams = {
-                    to_email: userEmail,
-                    otp: otp,
-                    user_email: userEmail,
-                    message: `Your OTP is: ${otp}`
-                };
-
-                // Send email using EmailJS
-                const response = await emailjs.send(
-                    "service_nk4zixs",
-                    "template_vh13f8d",
-                    templateParams
-                ).then(
-                    function(response) {
-                        console.log("SUCCESS!", response.status, response.text);
-                        statusMessage.textContent = 'OTP sent successfully!';
-                        statusMessage.className = 'status-message success';
-                        localStorage.setItem('currentOTP', otp);
-                        localStorage.setItem('otpTimestamp', Date.now());
-                    },
-                    function(error) {
-                        console.log("FAILED...", error);
-                        throw error;
-                    }
-                );
-
-            } catch (error) {
-                console.error('Error sending OTP:', error);
-                statusMessage.textContent = 'Failed to send OTP. Please try again.';
+            if (!userEmail) {
+                statusMessage.textContent = 'Email address not found. Please try again.';
                 statusMessage.className = 'status-message error';
-            } finally {
-                // Start countdown timer
-                let secondsLeft = 60;
-                updateTimer(secondsLeft);
-                
-                const timer = setInterval(() => {
-                    secondsLeft--;
+                button.disabled = false;
+                return;
+            }
+
+            const otp = generateOTP();
+            
+            const templateParams = {
+                to_email: userEmail,
+                user_email: userEmail,
+                otp: otp
+            };
+
+            emailjs.send('service_nk4zixs', 'template_vh13f8d', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    statusMessage.textContent = 'OTP sent successfully!';
+                    statusMessage.className = 'status-message success';
+                    localStorage.setItem('currentOTP', otp);
+                    
+                    let secondsLeft = 60;
                     updateTimer(secondsLeft);
                     
-                    if (secondsLeft <= 0) {
-                        clearInterval(timer);
-                        button.disabled = false;
-                        statusMessage.textContent = '';
-                        statusMessage.className = 'status-message';
-                    }
-                }, 1000);
-            }
+                    const timer = setInterval(() => {
+                        secondsLeft--;
+                        updateTimer(secondsLeft);
+                        
+                        if (secondsLeft <= 0) {
+                            clearInterval(timer);
+                            button.disabled = false;
+                            statusMessage.textContent = '';
+                        }
+                    }, 1000);
+                })
+                .catch(function(error) {
+                    console.log('FAILED...', error);
+                    statusMessage.textContent = 'Failed to send OTP. Please try again.';
+                    statusMessage.className = 'status-message error';
+                    button.disabled = false;
+                });
         }
 
-        // Check if email parameter is present
+        // Check email on load
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const userEmail = urlParams.get('email');
             if (!userEmail) {
-                console.log('No email found, redirecting to login...');
                 window.location.href = 'index.html';
-            } else {
-                console.log('Email found:', userEmail);
             }
         });
     </script>
