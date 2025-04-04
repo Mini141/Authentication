@@ -24,11 +24,17 @@ function toggleForm(formType) {
         signupForm.classList.add('hidden');
         qrSection.classList.add('hidden');
         otpSection.classList.add('hidden');
-    } else {
+        // Update URL without refreshing
+        const newUrl = window.location.pathname;
+        window.history.pushState({}, '', newUrl);
+    } else if (formType === 'signup') {
         loginForm.classList.add('hidden');
         signupForm.classList.remove('hidden');
         qrSection.classList.add('hidden');
         otpSection.classList.add('hidden');
+        // Update URL without refreshing
+        const newUrl = window.location.pathname + '?form=signup';
+        window.history.pushState({}, '', newUrl);
     }
 }
 
