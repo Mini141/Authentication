@@ -8,6 +8,10 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="config.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,48 +22,58 @@
             margin: 0;
             background-color: #f5f5f5;
             padding: 20px;
+            box-sizing: border-box;
         }
         .container {
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             width: 90%;
             max-width: 400px;
             position: relative;
+            margin-top: 40px;
         }
         .header {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .header i {
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: #4CAF50;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
         .header h1 {
             color: #333;
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
+            line-height: 1.2;
         }
         .header p {
             color: #666;
             margin: 0.5rem 0;
+            font-size: 0.9rem;
         }
         .info-box {
             background-color: #f8f9fa;
             border-left: 4px solid #4CAF50;
-            padding: 1rem;
+            padding: 0.8rem;
             margin: 1rem 0;
             text-align: left;
+            font-size: 0.9rem;
         }
         .info-box h3 {
             margin: 0 0 0.5rem 0;
             color: #333;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .info-box p {
-            margin: 0.5rem 0;
+            margin: 0.4rem 0;
             color: #666;
+            line-height: 1.4;
         }
         .send-otp-btn {
             background-color: #4CAF50;
@@ -67,10 +81,13 @@
             padding: 12px 24px;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 1rem;
             cursor: pointer;
             width: 100%;
             margin-top: 1rem;
+            transition: background-color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         .send-otp-btn:disabled {
             background-color: #cccccc;
@@ -79,45 +96,92 @@
         .send-otp-btn:hover:not(:disabled) {
             background-color: #45a049;
         }
+        .send-otp-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
         .status-message {
             margin-top: 15px;
-            font-size: 14px;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 4px;
         }
         .success {
             color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
         }
         .error {
             color: #f44336;
+            background-color: rgba(244, 67, 54, 0.1);
         }
         .timer {
             color: #666;
             margin-top: 1rem;
+            font-size: 0.9rem;
         }
         .back-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 5px;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .back-btn:active {
+            transform: scale(0.95);
         }
         @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 1rem;
+                margin-top: 60px;
+            }
+            .header i {
+                font-size: 2rem;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .info-box {
+                padding: 0.6rem;
+            }
             .back-btn {
                 top: 10px;
                 left: 10px;
-                padding: 8px 16px;
-                font-size: 14px;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            .status-message {
+                font-size: 0.85rem;
+            }
+        }
+        @media (max-height: 600px) {
+            .container {
+                margin-top: 50px;
+                padding: 1rem;
+            }
+            .header {
+                margin-bottom: 1rem;
+            }
+            .info-box {
+                margin: 0.5rem 0;
             }
         }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-btn">
+    <a href="login.html" class="back-btn">
         <i class="fas fa-arrow-left"></i>
         Back to Login
     </a>
@@ -133,7 +197,7 @@
             <h3><i class="fas fa-info-circle"></i> How it works:</h3>
             <p>1. Click the "Send OTP" button below</p>
             <p>2. You'll receive a 6-digit code on your registered email</p>
-            <p>3. Enter this code to complete verification</p>
+            <p>3. Check your email for the verification code</p>
         </div>
 
         <button class="send-otp-btn" onclick="sendOTP()">Send OTP</button>
@@ -142,8 +206,10 @@
     </div>
 
     <script>
+        // Initialize EmailJS with your public key
         (function() {
-            emailjs.init("IMwIKjhh67B1_o9I9");
+            emailjs.init("5GgOFke6DlrWL5_zr");
+            console.log('EmailJS initialized with public key');
         })();
 
         function generateOTP() {
@@ -159,69 +225,107 @@
             }
         }
 
-        function sendOTP() {
+        // Check authentication state on load
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const emailFromURL = urlParams.get('email');
+            const statusMessage = document.getElementById('statusMessage');
+            const sendOTPBtn = document.querySelector('.send-otp-btn');
+
+            if (emailFromURL) {
+                console.log('Email from URL:', emailFromURL);
+                sendOTPBtn.disabled = false;
+                statusMessage.textContent = 'Ready to send OTP to: ' + emailFromURL;
+                statusMessage.className = 'status-message success';
+            } else {
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log('Currently logged in user:', user.email);
+                        sendOTPBtn.disabled = false;
+                        statusMessage.textContent = 'Logged in as: ' + user.email;
+                        statusMessage.className = 'status-message success';
+                    } else {
+                        console.log('No user is authenticated');
+                        statusMessage.textContent = 'Please login first to receive OTP.';
+                        statusMessage.className = 'status-message error';
+                        sendOTPBtn.disabled = true;
+                    }
+                });
+            }
+        });
+
+        async function sendOTP() {
             const button = document.querySelector('.send-otp-btn');
             const statusMessage = document.getElementById('statusMessage');
             
-            button.disabled = true;
-            statusMessage.textContent = 'Sending OTP...';
-            statusMessage.className = 'status-message';
+            try {
+                button.disabled = true;
+                statusMessage.textContent = 'Sending OTP...';
+                statusMessage.className = 'status-message';
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const userEmail = urlParams.get('email');
+                let userEmail;
+                const urlParams = new URLSearchParams(window.location.search);
+                const emailFromURL = urlParams.get('email');
 
-            if (!userEmail) {
-                statusMessage.textContent = 'Email address not found. Please try again.';
-                statusMessage.className = 'status-message error';
-                button.disabled = false;
-                return;
-            }
-
-            const otp = generateOTP();
-            
-            const templateParams = {
-                to_email: userEmail,
-                user_email: userEmail,
-                otp: otp
-            };
-
-            emailjs.send('service_nk4zixs', 'template_vh13f8d', templateParams)
-                .then(function(response) {
-                    console.log('SUCCESS!', response.status, response.text);
-                    statusMessage.textContent = 'OTP sent successfully!';
-                    statusMessage.className = 'status-message success';
-                    localStorage.setItem('currentOTP', otp);
+                if (emailFromURL) {
+                    userEmail = emailFromURL;
+                } else {
+                    await firebase.auth().currentUser.reload();
+                    const user = firebase.auth().currentUser;
                     
-                    let secondsLeft = 60;
+                    if (!user || !user.email) {
+                        throw new Error('No authenticated user found. Please login again.');
+                    }
+                    userEmail = user.email;
+                }
+
+                console.log('Sending OTP to:', userEmail);
+
+                const otp = generateOTP();
+                console.log('Generated OTP:', otp);
+
+                // Send email using EmailJS
+                const response = await emailjs.send(
+                    'service_zlqtm7c',
+                    'template_vh13f8d',
+                    {
+                        to_email: userEmail,
+                        to_name: userEmail.split('@')[0],
+                        from_name: 'E-Authentication System',
+                        otp: otp,
+                        message: `Your OTP is: ${otp}`
+                    }
+                );
+
+                console.log('Email sent successfully:', response);
+                statusMessage.textContent = 'OTP sent successfully to ' + userEmail;
+                statusMessage.className = 'status-message success';
+
+                let secondsLeft = 60;
+                updateTimer(secondsLeft);
+                
+                const timer = setInterval(() => {
+                    secondsLeft--;
                     updateTimer(secondsLeft);
                     
-                    const timer = setInterval(() => {
-                        secondsLeft--;
-                        updateTimer(secondsLeft);
-                        
-                        if (secondsLeft <= 0) {
-                            clearInterval(timer);
-                            button.disabled = false;
-                            statusMessage.textContent = '';
-                        }
-                    }, 1000);
-                })
-                .catch(function(error) {
-                    console.log('FAILED...', error);
-                    statusMessage.textContent = 'Failed to send OTP. Please try again.';
-                    statusMessage.className = 'status-message error';
-                    button.disabled = false;
-                });
-        }
+                    if (secondsLeft <= 0) {
+                        clearInterval(timer);
+                        button.disabled = false;
+                        statusMessage.textContent = 'Ready to send OTP to: ' + userEmail;
+                    }
+                }, 1000);
 
-        // Check email on load
-        window.addEventListener('load', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const userEmail = urlParams.get('email');
-            if (!userEmail) {
-                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Failed to send OTP:', error);
+                let errorMessage = error.message || 'Unknown error occurred';
+                if (error.text) {
+                    errorMessage = error.text;
+                }
+                statusMessage.textContent = 'Failed to send OTP: ' + errorMessage;
+                statusMessage.className = 'status-message error';
+                button.disabled = false;
             }
-        });
+        }
     </script>
 </body>
 </html> 

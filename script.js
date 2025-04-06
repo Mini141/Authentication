@@ -62,9 +62,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const password = document.getElementById('loginPassword').value;
 
     try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        console.log('User logged in:', userCredential.user.email);
+        localStorage.setItem('userEmail', email);
         showQRCode(email);
     } catch (error) {
+        console.error('Login Error:', error);
         alert('Login Error: ' + error.message);
     }
 });
@@ -77,12 +80,15 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     const name = document.getElementById('signupName').value;
 
     try {
-        await firebase.auth().createUserWithEmailAndPassword(email, password);
-        await firebase.auth().currentUser.updateProfile({
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        console.log('User signed up:', userCredential.user.email);
+        await userCredential.user.updateProfile({
             displayName: name
         });
+        localStorage.setItem('userEmail', email);
         showQRCode(email);
     } catch (error) {
+        console.error('Signup Error:', error);
         alert('Signup Error: ' + error.message);
     }
 });
@@ -98,20 +104,32 @@ function showQRCode(email) {
     localStorage.setItem('userEmail', email);
     
     // Generate QR code with email parameter
-    const baseUrl = window.location.origin;
+    const currentUrl = window.location.href;
+    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
     const otpUrl = `${baseUrl}/otp.html?email=${encodeURIComponent(email)}`;
     
-    // Create QR code
+    // Create QR code with better visibility
     const qrcode = new QRCode(document.getElementById("qrcode"), {
         text: otpUrl,
-        width: 200,
-        height: 200,
+        width: 256,
+        height: 256,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
     
-    console.log('Generated QR URL:', otpUrl); // For debugging
+    console.log('Generated QR URL:', otpUrl);
+    
+    // Add instructions for scanning
+    const qrInstructions = document.createElement('p');
+    qrInstructions.style.marginTop = '20px';
+    qrInstructions.style.color = '#666';
+    qrInstructions.innerHTML = `
+        <i class="fas fa-info-circle"></i> 
+        Scan this QR code with your mobile device to receive the OTP.
+        The OTP page will open automatically.
+    `;
+    document.getElementById('qrcode').parentNode.appendChild(qrInstructions);
     
     // Simulate QR code scan (in real app, this would be triggered by actual scan)
     setTimeout(() => {
