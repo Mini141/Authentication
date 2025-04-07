@@ -124,6 +124,15 @@ function showQRCode(email) {
     const qrContainer = document.getElementById('qrcode');
     qrContainer.innerHTML = '';
     
+    // Add white background container for QR code
+    const qrWrapper = document.createElement('div');
+    qrWrapper.style.backgroundColor = 'white';
+    qrWrapper.style.padding = '20px';
+    qrWrapper.style.borderRadius = '10px';
+    qrWrapper.style.display = 'inline-block';
+    qrWrapper.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    qrContainer.appendChild(qrWrapper);
+    
     // Store email in localStorage for OTP verification
     localStorage.setItem('userEmail', email);
     
@@ -134,7 +143,7 @@ function showQRCode(email) {
     console.log('Generated QR URL:', otpUrl);
     
     // Create QR code with better visibility
-    new QRCode(qrContainer, {
+    new QRCode(qrWrapper, {
         text: otpUrl,
         width: 256,
         height: 256,
