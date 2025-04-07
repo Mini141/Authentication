@@ -62,13 +62,24 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const password = document.getElementById('loginPassword').value;
 
     try {
+        // Attempt to sign in directly
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
         console.log('User logged in:', userCredential.user.email);
         localStorage.setItem('userEmail', email);
         showQRCode(email);
     } catch (error) {
         console.error('Login Error:', error);
-        alert('Login Error: ' + error.message);
+        if (error.code === 'auth/user-not-found') {
+            // User doesn't exist, redirect to signup
+            alert('Account not found. Please sign up first.');
+            toggleForm('signup');
+            // Pre-fill the signup email field
+            document.getElementById('signupEmail').value = email;
+        } else if (error.code === 'auth/wrong-password') {
+            alert('Incorrect password. Please try again.');
+        } else {
+            alert('Login Error: ' + error.message);
+        }
     }
 });
 
@@ -80,13 +91,22 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     const name = document.getElementById('signupName').value;
 
     try {
+        // Create the user account
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         console.log('User signed up:', userCredential.user.email);
+        
+        // Update profile
         await userCredential.user.updateProfile({
             displayName: name
         });
+        
+        // Store email and show QR code directly
         localStorage.setItem('userEmail', email);
         showQRCode(email);
+        
+        // Show success message
+        alert('Account created successfully! You are now logged in.');
+        
     } catch (error) {
         console.error('Signup Error:', error);
         alert('Signup Error: ' + error.message);
