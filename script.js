@@ -171,12 +171,79 @@ function showQRCode(email) {
         The OTP page will open on your mobile device.
     `;
     qrContainer.appendChild(qrInstructions);
+    
+    // Add timer display
+    const timerDisplay = document.createElement('div');
+    timerDisplay.id = 'qr-timer';
+    timerDisplay.style.marginTop = '15px';
+    timerDisplay.style.fontSize = '1.2rem';
+    timerDisplay.style.fontWeight = 'bold';
+    timerDisplay.style.color = '#4f46e5';
+    qrContainer.appendChild(timerDisplay);
+    
+    // Start 30-second timer
+    let secondsLeft = 30;
+    timerDisplay.textContent = `Time remaining: ${secondsLeft} seconds`;
+    
+    const timer = setInterval(() => {
+        secondsLeft--;
+        timerDisplay.textContent = `Time remaining: ${secondsLeft} seconds`;
+        
+        if (secondsLeft <= 0) {
+            clearInterval(timer);
+            // After 30 seconds, show verification page
+            showVerificationPage();
+        }
+    }, 1000);
 }
 
-// Show OTP Section
-function showOTPSection() {
+// Show Verification Page
+function showVerificationPage() {
     qrSection.classList.add('hidden');
     otpSection.classList.remove('hidden');
+    
+    // Generate a random OTP for verification
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    localStorage.setItem('currentOTP', otp.toString());
+    
+    // Display the OTP for verification
+    const otpDisplay = document.getElementById('otp-display');
+    otpDisplay.textContent = `Your verification code: ${otp}`;
+    
+    // Add verification instructions
+    const verificationInstructions = document.createElement('p');
+    verificationInstructions.style.marginTop = '15px';
+    verificationInstructions.style.color = '#666';
+    verificationInstructions.style.textAlign = 'center';
+    verificationInstructions.innerHTML = `
+        <i class="fas fa-info-circle"></i> 
+        Please enter the verification code shown above to complete the process.
+    `;
+    otpSection.insertBefore(verificationInstructions, document.getElementById('otpForm'));
+    
+    // Add timer for verification page
+    const verificationTimer = document.createElement('div');
+    verificationTimer.id = 'verification-timer';
+    verificationTimer.style.marginTop = '15px';
+    verificationTimer.style.fontSize = '1.2rem';
+    verificationTimer.style.fontWeight = 'bold';
+    verificationTimer.style.color = '#4f46e5';
+    verificationTimer.textContent = 'Time remaining: 60 seconds';
+    otpSection.insertBefore(verificationTimer, document.getElementById('otpForm'));
+    
+    // Start 60-second timer for verification
+    let verificationSecondsLeft = 60;
+    
+    const verificationTimerInterval = setInterval(() => {
+        verificationSecondsLeft--;
+        verificationTimer.textContent = `Time remaining: ${verificationSecondsLeft} seconds`;
+        
+        if (verificationSecondsLeft <= 0) {
+            clearInterval(verificationTimerInterval);
+            // If verification time expires, redirect to success page
+            window.location.href = 'success.html';
+        }
+    }, 1000);
 }
 
 // Handle OTP Verification
