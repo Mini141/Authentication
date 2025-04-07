@@ -134,7 +134,7 @@ function showQRCode(email) {
     // Add white background container for QR code
     const qrWrapper = document.createElement('div');
     qrWrapper.style.backgroundColor = 'white';
-    qrWrapper.style.padding = '20px';
+    qrWrapper.style.padding = '15px';
     qrWrapper.style.borderRadius = '10px';
     qrWrapper.style.display = 'inline-block';
     qrWrapper.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
@@ -149,11 +149,11 @@ function showQRCode(email) {
     
     console.log('Generated QR URL:', otpUrl);
     
-    // Create QR code with better visibility
+    // Create QR code with better visibility - smaller size
     new QRCode(qrWrapper, {
         text: otpUrl,
-        width: 256,
-        height: 256,
+        width: 200,
+        height: 200,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
