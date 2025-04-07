@@ -127,9 +127,11 @@ function showQRCode(email) {
     // Store email in localStorage for OTP verification
     localStorage.setItem('userEmail', email);
     
-    // Generate QR code with email parameter
+    // Generate QR code with email parameter - use absolute path
     const baseUrl = window.location.origin;
     const otpUrl = `${baseUrl}/otp.html?email=${encodeURIComponent(email)}`;
+    
+    console.log('Generated QR URL:', otpUrl);
     
     // Create QR code with better visibility
     new QRCode(qrContainer, {
@@ -140,8 +142,6 @@ function showQRCode(email) {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
-    
-    console.log('Generated QR URL:', otpUrl);
     
     // Add instructions for scanning
     const qrInstructions = document.createElement('p');
@@ -154,12 +154,21 @@ function showQRCode(email) {
     `;
     qrContainer.parentNode.appendChild(qrInstructions);
     
-    // Simulate QR code scan (in real app, this would be triggered by actual scan)
-    setTimeout(() => {
-        const otp = generateOTP();
-        console.log('OTP:', otp);
-        showOTPSection();
-    }, 30000); // Simulate 30 second delay for QR scan
+    // Add a direct link for testing
+    const directLink = document.createElement('a');
+    directLink.href = otpUrl;
+    directLink.textContent = 'Click here if QR code scanning is not working';
+    directLink.style.display = 'block';
+    directLink.style.marginTop = '15px';
+    directLink.style.color = '#6366f1';
+    directLink.style.textDecoration = 'none';
+    directLink.style.fontSize = '14px';
+    directLink.style.fontWeight = '500';
+    directLink.onclick = function(e) {
+        e.preventDefault();
+        window.open(otpUrl, '_blank');
+    };
+    qrContainer.parentNode.appendChild(directLink);
 }
 
 // Show OTP Section
