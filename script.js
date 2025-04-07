@@ -154,21 +154,25 @@ function showQRCode(email) {
     `;
     qrContainer.parentNode.appendChild(qrInstructions);
     
-    // Add a direct link for testing
-    const directLink = document.createElement('a');
-    directLink.href = otpUrl;
-    directLink.textContent = 'Click here if QR code scanning is not working';
-    directLink.style.display = 'block';
-    directLink.style.marginTop = '15px';
-    directLink.style.color = '#6366f1';
-    directLink.style.textDecoration = 'none';
-    directLink.style.fontSize = '14px';
-    directLink.style.fontWeight = '500';
-    directLink.onclick = function(e) {
-        e.preventDefault();
-        window.open(otpUrl, '_blank');
-    };
-    qrContainer.parentNode.appendChild(directLink);
+    // Check if user is on mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // On mobile, automatically redirect to OTP page
+        window.location.href = otpUrl;
+    } else {
+        // On desktop, show a message to scan with mobile
+        const mobileMessage = document.createElement('p');
+        mobileMessage.style.marginTop = '15px';
+        mobileMessage.style.color = '#6366f1';
+        mobileMessage.style.fontSize = '14px';
+        mobileMessage.style.fontWeight = '500';
+        mobileMessage.innerHTML = `
+            <i class="fas fa-mobile-alt"></i> 
+            Please scan this QR code with your mobile device to continue.
+        `;
+        qrContainer.parentNode.appendChild(mobileMessage);
+    }
 }
 
 // Show OTP Section
