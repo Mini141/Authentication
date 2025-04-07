@@ -124,6 +124,13 @@ function showQRCode(email) {
     const qrContainer = document.getElementById('qrcode');
     qrContainer.innerHTML = '';
     
+    // Center the QR container
+    qrContainer.style.display = 'flex';
+    qrContainer.style.flexDirection = 'column';
+    qrContainer.style.alignItems = 'center';
+    qrContainer.style.justifyContent = 'center';
+    qrContainer.style.width = '100%';
+    
     // Add white background container for QR code
     const qrWrapper = document.createElement('div');
     qrWrapper.style.backgroundColor = 'white';
@@ -156,32 +163,14 @@ function showQRCode(email) {
     const qrInstructions = document.createElement('p');
     qrInstructions.style.marginTop = '20px';
     qrInstructions.style.color = '#666';
+    qrInstructions.style.textAlign = 'center';
+    qrInstructions.style.maxWidth = '80%';
     qrInstructions.innerHTML = `
         <i class="fas fa-info-circle"></i> 
         Scan this QR code with your mobile device to receive the OTP.
         The OTP page will open on your mobile device.
     `;
-    qrContainer.parentNode.appendChild(qrInstructions);
-    
-    // Add a direct link for testing (only visible on desktop)
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (!isMobile) {
-        const directLink = document.createElement('a');
-        directLink.href = otpUrl;
-        directLink.textContent = 'Open OTP page in new tab (for testing)';
-        directLink.style.display = 'block';
-        directLink.style.marginTop = '15px';
-        directLink.style.color = '#6366f1';
-        directLink.style.textDecoration = 'none';
-        directLink.style.fontSize = '14px';
-        directLink.style.fontWeight = '500';
-        directLink.onclick = function(e) {
-            e.preventDefault();
-            window.open(otpUrl, '_blank');
-        };
-        qrContainer.parentNode.appendChild(directLink);
-    }
+    qrContainer.appendChild(qrInstructions);
 }
 
 // Show OTP Section
