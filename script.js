@@ -118,18 +118,21 @@ function showQRCode(email) {
     loginForm.classList.add('hidden');
     signupForm.classList.add('hidden');
     qrSection.classList.remove('hidden');
-    document.getElementById('qrcode').innerHTML = '';
+    otpSection.classList.add('hidden');
+    
+    // Clear previous QR code
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
     
     // Store email in localStorage for OTP verification
     localStorage.setItem('userEmail', email);
     
     // Generate QR code with email parameter
-    const currentUrl = window.location.href;
-    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+    const baseUrl = window.location.origin;
     const otpUrl = `${baseUrl}/otp.html?email=${encodeURIComponent(email)}`;
     
     // Create QR code with better visibility
-    const qrcode = new QRCode(document.getElementById("qrcode"), {
+    new QRCode(qrContainer, {
         text: otpUrl,
         width: 256,
         height: 256,
@@ -149,7 +152,7 @@ function showQRCode(email) {
         Scan this QR code with your mobile device to receive the OTP.
         The OTP page will open automatically.
     `;
-    document.getElementById('qrcode').parentNode.appendChild(qrInstructions);
+    qrContainer.parentNode.appendChild(qrInstructions);
     
     // Simulate QR code scan (in real app, this would be triggered by actual scan)
     setTimeout(() => {
