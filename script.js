@@ -150,22 +150,29 @@ function showQRCode(email) {
     qrInstructions.innerHTML = `
         <i class="fas fa-info-circle"></i> 
         Scan this QR code with your mobile device to receive the OTP.
-        When scanned, you'll see a link to the OTP page.
+        The OTP page will open on your mobile device.
     `;
     qrContainer.parentNode.appendChild(qrInstructions);
     
-    // Remove the automatic redirect for mobile devices
-    // Instead, show a message for all devices
-    const scanMessage = document.createElement('p');
-    scanMessage.style.marginTop = '15px';
-    scanMessage.style.color = '#6366f1';
-    scanMessage.style.fontSize = '14px';
-    scanMessage.style.fontWeight = '500';
-    scanMessage.innerHTML = `
-        <i class="fas fa-mobile-alt"></i> 
-        Scan this QR code with your mobile device to continue.
-    `;
-    qrContainer.parentNode.appendChild(scanMessage);
+    // Add a direct link for testing (only visible on desktop)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (!isMobile) {
+        const directLink = document.createElement('a');
+        directLink.href = otpUrl;
+        directLink.textContent = 'Open OTP page in new tab (for testing)';
+        directLink.style.display = 'block';
+        directLink.style.marginTop = '15px';
+        directLink.style.color = '#6366f1';
+        directLink.style.textDecoration = 'none';
+        directLink.style.fontSize = '14px';
+        directLink.style.fontWeight = '500';
+        directLink.onclick = function(e) {
+            e.preventDefault();
+            window.open(otpUrl, '_blank');
+        };
+        qrContainer.parentNode.appendChild(directLink);
+    }
 }
 
 // Show OTP Section
