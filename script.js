@@ -206,8 +206,20 @@ function showVerificationPage() {
     const otp = Math.floor(100000 + Math.random() * 900000);
     localStorage.setItem('currentOTP', otp.toString());
     
+    // Create OTP display element if it doesn't exist
+    let otpDisplay = document.getElementById('otp-display');
+    if (!otpDisplay) {
+        otpDisplay = document.createElement('div');
+        otpDisplay.id = 'otp-display';
+        otpDisplay.style.marginBottom = '20px';
+        otpDisplay.style.fontSize = '1.2rem';
+        otpDisplay.style.fontWeight = 'bold';
+        otpDisplay.style.color = '#4f46e5';
+        otpDisplay.style.textAlign = 'center';
+        otpSection.insertBefore(otpDisplay, document.getElementById('otpForm'));
+    }
+    
     // Display the OTP for verification
-    const otpDisplay = document.getElementById('otp-display');
     otpDisplay.textContent = `Your verification code: ${otp}`;
     
     // Add verification instructions
@@ -240,8 +252,10 @@ function showVerificationPage() {
         
         if (verificationSecondsLeft <= 0) {
             clearInterval(verificationTimerInterval);
-            // If verification time expires, redirect to success page
-            window.location.href = 'success.html';
+            // If verification time expires, show error message and reset timer
+            alert('Verification time expired. Please try again.');
+            verificationSecondsLeft = 60;
+            verificationTimer.textContent = `Time remaining: ${verificationSecondsLeft} seconds`;
         }
     }, 1000);
 }
@@ -256,9 +270,11 @@ document.getElementById('otpForm').addEventListener('submit', (e) => {
         // Clear the stored OTP
         localStorage.removeItem('currentOTP');
         localStorage.removeItem('otpTimestamp');
-        // Redirect to success page
+        // Redirect to success page only on successful verification
         window.location.href = 'success.html';
     } else {
         alert('Invalid OTP. Please try again.');
+        // Clear the input field
+        document.getElementById('otpInput').value = '';
     }
 });
